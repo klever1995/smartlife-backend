@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Importar routers de cada módulo
-from app.routes import analyze
 from app.routes import user_routes
 from app.routes import photos_routes      
 from app.routes import recommendations_routes  
@@ -24,7 +23,6 @@ app.add_middleware(
 )
 
 # Registrar rutas con sus prefijos
-app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(photos_routes.router, prefix="/photos", tags=["photos"])  
 app.include_router(recommendations_routes.router, prefix="/recommendations", tags=["recommendations"])  
