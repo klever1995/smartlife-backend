@@ -1,0 +1,9 @@
+# Entorno virtual
+venv/
+
+# Variables de entorno
+.env
+
+# Archivos de prueba o locales
+prueba.py
+app/routes/analyze.py
