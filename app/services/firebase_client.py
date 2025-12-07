@@ -3,7 +3,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 # Configura la ruta del archivo de credenciales de Firebase
-cred_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'lifestyle.json')
+cred_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'lifestyle2.json')
 
 # Inicializa Firebase solo si no está inicializada
 if not firebase_admin._apps:
