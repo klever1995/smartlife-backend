@@ -7,3 +7,6 @@ venv/
 # Archivos de prueba o locales
 prueba.py
 app/routes/analyze.py
+
+# Credenciales de Firebase
+lifestyle3.json
