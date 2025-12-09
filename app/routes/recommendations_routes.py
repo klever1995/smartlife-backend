@@ -2,22 +2,26 @@ from fastapi import APIRouter, HTTPException
 from app.services.firebase_client import db
 from app.services.openai_client import generate_daily_recommendation_openai
 from app.models.recommendations import RecommendationCreate, RecommendationPublic
-from datetime import datetime
+from datetime import datetime, time
 from typing import Optional
 
 router = APIRouter(tags=["Recommendations"])
 
-# Endpoint para generar una recomendación sin guardar
+# Endpoint para generar una recomendación
 @router.get("/recommend/{username}", response_model=RecommendationPublic)
 def generate_recommendation(username: str):
     interpretations_today = []
     photo_ids_today = []
 
     try:
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today = datetime.now().date()
+        today_start = datetime.combine(today, time.min)  
+        today_end = datetime.combine(today, time.max)   
+
         photos_ref = db.collection("photos") \
                        .where("username", "==", username) \
-                       .where("timestamp", ">=", today_start).stream()
+                       .where("timestamp", ">=", today_start) \
+                       .where("timestamp", "<=", today_end).stream()
 
         for doc in photos_ref:
             photo_data = doc.to_dict()
@@ -29,10 +33,17 @@ def generate_recommendation(username: str):
         print(f"Error buscando fotos del día: {e}")
         raise HTTPException(status_code=500, detail="Error al buscar fotos del usuario")
 
+    # Validar si hay fotos
     if not interpretations_today:
-        raise HTTPException(status_code=400, detail="No hay fotos interpretadas hoy para generar recomendación")
+        return RecommendationPublic(
+            username=username,
+            photo_ids=[],
+            interpretations=[],
+            recommendations=["No hay fotos subidas hoy."],
+            final_recommendation="No hay fotos subidas hoy.",
+            timestamp=datetime.utcnow()
+        )
 
-    # Cargar datos del usuario
     user_context = None
     try:
         user_doc = db.collection("users").document(username).get()
@@ -56,7 +67,6 @@ def generate_recommendation(username: str):
     lines = [line.strip() for line in (final_text or "").splitlines() if line.strip()]
     rec_list = lines if lines else [final_text]
 
-    # Retornamos la recomendación sin guardarla
     return RecommendationPublic(
         username=username,
         photo_ids=photo_ids_today,
@@ -65,7 +75,6 @@ def generate_recommendation(username: str):
         final_recommendation=final_text or "",
         timestamp=datetime.utcnow()
     )
-
 
 # Endpoint para guardar una recomendación generada
 @router.post("/save", response_model=RecommendationPublic)

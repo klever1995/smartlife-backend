@@ -10,3 +10,7 @@ app/routes/analyze.py
 
 # Credenciales de Firebase
 lifestyle3.json
+
+# Python cache
+__pycache__/
+*.pyc
